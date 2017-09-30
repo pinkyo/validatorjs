@@ -1,0 +1,39 @@
+{
+  "name": "validator",
+  "version": "1.0.0",
+  "description": "central validator to provided validation solution",
+  "main": "index.js",
+  "ava": {
+    "files": [
+      "test/*.js"
+    ],
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
+  },
+  "scripts": {
+    "build": "babel src --out-dir lib",
+    "test": "nyc ava",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "keywords": [
+    "validation",
+    "javascript"
+  ],
+  "author": "pinkyo",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^0.22.0",
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "coveralls": "^3.0.0",
+    "nyc": "^11.2.1",
+    "rimraf": "^2.6.2"
+  },
+  "peerDependencies": {
+    "lodash": "^4.17.4"
+  }
+}

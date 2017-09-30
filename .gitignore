@@ -3,3 +3,8 @@
 *.gcno
 *.gcda
 *.gcov
+
+node_modules/
+.vscode/
+.nyc_output/
+lib/
