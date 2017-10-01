@@ -105,7 +105,7 @@ function register(validator, field, validationChain, callback) {
 
   const {validationStorage, groupStroage} = validator;
   validationStorage[id] = {name, validationChain, getter};
-  if (groups) {
+  if (!_.isNil(groups)) {
     groups.forEach(function(element) {
       let group = groupStroage[element];
       if (!group) {
@@ -117,7 +117,7 @@ function register(validator, field, validationChain, callback) {
     }, this);
   }
   
-  if (callback) callback();
+  if (!_.isNil(callback)) callback();
   return true;
 }
 
@@ -154,7 +154,7 @@ function validate(validator, groups, callback) {
     result[element] = validationResult;
   });
   
-  if (callback) callback();
+  if (!_.isNil(callback)) callback();
   return result;
 }
 
@@ -214,7 +214,7 @@ function subscribe(validator, id, listener, callback) {
   listeners.push(listener)
   validation.listeners = listeners;
   
-  if (callback) callback();
+  if (!_.isNil(callback)) callback();
   return () => {
     const index = listeners.indexOf(listener);
     listeners.splice(index, 1);
@@ -240,7 +240,7 @@ function clearListeners(validator, id, callback) {
   if (_.isNil(validation)) { return; } 
   
   validation.listeners = [];
-  if (callback) callback();
+  if (!_.isNil(callback)) callback();
 }
 
 /**
@@ -271,7 +271,7 @@ function updateGroups(validator, id, groups, callback) {
     group[id] = true;
   }, this);
   
-  if (callback) callback();
+  if (!_.isNil(callback)) callback();
   return true;
 }
 
@@ -297,7 +297,7 @@ function addGroup(validator, id, group, callback) {
   }
   groupInfo[id] = true;
   
-  if (callback) callback();
+  if (!_.isNil(callback)) callback();
   return true;
 }
 
@@ -322,7 +322,7 @@ function removeGroup(validator, id, group, callback) {
   
   groupInfo[id] = false;
 
-  if (callback) callback();
+  if (!_.isNil(callback)) callback();
 }
 
 /**
@@ -342,7 +342,7 @@ function deregister(validator, id, callback) {
   if (_.isNil(validation)) { return; }
 
   delete validationStorage[id];
-  if (callback) callback()
+  if (!_.isNil(callback)) callback()
 }
 
 /**

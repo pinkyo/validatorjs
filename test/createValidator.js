@@ -94,6 +94,19 @@ test('subscribe success', t => {
   t.deepEqual(listenerRes, [tip]);
 });
 
+test('suscribe fail with null listener', t => {
+  const {validator} = t.context;
+  let callbackInvoked = false;
+  validator.register(field, validationChain);
+  const unsubscribe = validator.subscribe(id, null, () => {
+    callbackInvoked = true;
+  });
+  validator.validate();
+  
+  t.false(_.isFunction(unsubscribe));
+  t.false(callbackInvoked);
+});
+
 test('unsubscribe success', t => {
   const {validator} = t.context;
   let callbackInvoked = false;
@@ -207,6 +220,26 @@ test('throw exception for name type error', t => {
       validationChain),
     TypeError);
   t.truthy(nameError);
+});
+
+test('throw exception for groups type error', t => {
+  const {validator} = t.context;
+  const groupError = t.throws(
+    () => validator.register(
+      {id, getter, name, groups: 1},
+      validationChain),
+    TypeError);
+  t.truthy(groupError);
+});
+
+test('throw exception for elements of groups type error', t => {
+  const {validator} = t.context;
+  const groupError = t.throws(
+    () => validator.register(
+      {id, getter, name, groups: [1, 2, 3]},
+      validationChain),
+    TypeError);
+  t.truthy(groupError);
 });
 
 test('throw exception for getter type error', t => {
