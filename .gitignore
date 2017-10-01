@@ -6,5 +6,7 @@
 
 node_modules/
 .vscode/
+*.log
 .nyc_output/
 lib/
+coverage/

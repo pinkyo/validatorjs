@@ -13,6 +13,7 @@
     "babel": "inherit"
   },
   "scripts": {
+    "clean": "rimraf lib/",
     "build": "babel src --out-dir lib",
     "test": "nyc ava",
     "coverage": "nyc report --reporter=text-lcov | coveralls"

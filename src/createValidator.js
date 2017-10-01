@@ -1,46 +1,46 @@
 import _ from 'lodash';
 
 function checkFieldType(field) {
-  const errorMessage ="field can't be null.";
-  if (!field) {
-    throw new Error(errorMessage);
+  const errorMessage ="field can't be null and must be an object.";
+  if (!_.isObject(field)) {
+    throw new TypeError(errorMessage);
   }
 }
 
 function checkId(id) {
   const errorMessage = "id must not be null and must be a string.";
-  if (!id || !_.isString(id)) {
-    throw new Error(errorMessage);
+  if (!_.isString(id)) {
+    throw new TypeError(errorMessage);
   }
 }
 
 function checkGetter(getter) {
   const errorMessage = "getter must a function without paramter.";
   if (!_.isFunction(getter)) {
-    throw new Error(errorMessage);
+    throw new TypeError(errorMessage);
   }
 }
 
 function checkName(name) {
-  if (!name) { return; }
+  if (_.isNil(name)) { return; }
   
   const errorMessage = "name must be a string."
   if (!_.isString(name)) {
-    throw new Error(errorMessage);
+    throw new TypeError(errorMessage);
   }
 }
 
 function checkGroups(groups) {
-  if (!groups) { return; }
+  if (_.isNil(groups)) { return; }
   
   const errorMessage = "groups must be an array of strings.";    
   if (!_.isArray(groups)) {
-    throw new Error(errorMessage);
+    throw new TypeError(errorMessage);
   }
   
   groups.forEach(function(element) {
     if (!_.isString(element)) {
-      throw new Error(errorMessage);
+      throw new TypeError(errorMessage);
     }
   }, this);
 }
@@ -48,16 +48,18 @@ function checkGroups(groups) {
 function checkValidationChain(validationChain) {
   if (_.isNil(validationChain)) { return; }
   const errorMessage = "validation chain must be array of functions.";
-  if (validationChain && !_.isArray(validationChain)) {
-    throw new Error(errorMessage);
+  if (!_.isArray(validationChain)) {
+    throw new TypeError(errorMessage);
   }
 }
 
 function checkCallback(callback) {
-  if (!callback) { return; }
+  if (_.isNil(callback)) { return; }
   
   const errorMessage = "callback must be a function.";
-
+  if (!_.isFunction(callback)) {
+    throw new TypeError(errorMessage);
+  }
 }
 
 /**
@@ -75,24 +77,24 @@ function register(validator, field, validationChain, callback) {
   checkGetter(getter);
   checkName(name);
   checkGroups(groups);
-  
   checkValidationChain(validationChain);
-  
+  checkCallback(callback);
+
   const {validationStorage, groupStroage} = validator;
-  validationStorage[id] = {name, validationChain};
+  validationStorage[id] = {name, validationChain, getter};
   if (groups) {
     groups.forEach(function(element) {
-      let gtemp = groupStroage[element];
-      if (!gtemp) {
+      let group = groupStroage[element];
+      if (!group) {
         groupStroage[element] = {};
-        gtemp = groupStroage[element];
+        group = groupStroage[element];
       }
       
-      gtemp[id] = true;
-    }. this);
+      group[id] = true;
+    }, this);
   }
   
-  callback.call();
+  if (callback) callback();
   return true;
 }
 
@@ -103,6 +105,7 @@ function register(validator, field, validationChain, callback) {
 */
 function validate(validator, groups, callback) {
   checkGroups(groups);
+  checkCallback(callback);
   
   const {validationStorage, groupStroage} = validator;
   
@@ -111,36 +114,37 @@ function validate(validator, groups, callback) {
   if (groups) {
     groups.forEach(function(element) {
       const group = groupStroage[element] || {};
-      for (id in group)
+      for (const id in group)
       if (group[id]) fieldIds.add(id); 
     }, this);
   } else {
-    fieldIds = validationStorage.keys();
+    fieldIds = _.keys(validationStorage);
   }
   
   const result = {};
   fieldIds.forEach(function(element) {
     const validation = validationStorage[element];
-    const {name, getter, validationChain, listeners} = validate;
-    if (validationChain) {
-      result[element] = validationChain.call({name, getter});
-    } else {
-      result[element] = null;
-    }
+    const {name, getter, validationChain, listeners = []} = validation;
     
-    if (listeners) {
-      listeners.forEach(function(f) {
-        f.call(result[element]);
-      }, this);
+    const validationResult = [];
+    if (!_.isNil(validationChain)) {
+      _.each(validationChain, (f) => {
+        validationResult.push(f({name, getter}));
+      });
     }
+    result[element] = validationResult;
+    
+    listeners.forEach(function(f) {
+      f(validationResult);
+    }, this);
   }, this);
   
-  callback.call();
+  if (callback) callback();
   return result;
 }
 
 function checkListener(listener) {
-  if (!listener) { return; }
+  if (_.isNil(listener)) { return; }
   
   const errorMessage = "listener must be a function with a parameter."
   if (!_.isFunction(listener)) {
@@ -157,22 +161,26 @@ function checkListener(listener) {
 */
 function subscribe(validator, id, listener, callback) {
   checkListener(listener);
-  if (!listener) { return true; }
+  checkCallback(callback);
+  
+  if (_.isNil(listener)) { return true; }
   
   const {validationStorage} = validator;
   const validation = validationStorage[id];
-  if (!validation) {
+  if (_.isNil(validation)) {
     console.warn(`id ${id} haven't be registered, check it before subscribe.`);
     return false;
   }
   
   const {listeners = []} = validation;
-  validation.listeners = listeners.push(listener);
+  listeners.push(listener)
+  validation.listeners = listeners;
   
-  callback.call();
-  return function() {
+  if (callback) callback();
+  return () => {
     const index = listeners.indexOf(listener);
-    validation.listeners = listeners.splice(index, 1);
+    listeners.splice(index, 1);
+    validation.listeners = listeners;
     return true;
   };
 }
@@ -186,11 +194,12 @@ function subscribe(validator, id, listener, callback) {
 */
 function updateGroups(validator, id, groups, callback) {
   checkGroups(groups);
+  checkCallback(callback);
   
   const {groupStroage} = validator;
   
   //remove all groups.
-  groupStroage.forEach(function(element) {
+  _.values(groupStroage).forEach(function(element) {
     element[id] = false;
   }, this);
   
@@ -203,7 +212,7 @@ function updateGroups(validator, id, groups, callback) {
     group[id] = true;
   }, this);
   
-  callback.call();
+  if (callback) callback();
   return true;
 }
 
@@ -217,6 +226,7 @@ function updateGroups(validator, id, groups, callback) {
 */
 function addGroup(validator, id, group, callback) {
   checkGroups([group]);
+  checkCallback(callback);
   
   const { groupStroage }  = validator;
   let groupInfo = groupStroage[group];
@@ -226,7 +236,7 @@ function addGroup(validator, id, group, callback) {
   }
   groupInfo[id] = true;
   
-  callback.call();
+  if (callback) callback();
   return true;
 }
 
@@ -239,14 +249,15 @@ function addGroup(validator, id, group, callback) {
 */
 function removeGroup(validator, id, group, callback) {
   checkGroups([group]);
+  checkCallback(callback);
   
   const { groupStroage } = validator;
   const groupInfo = groupStroage[group];
   if (!groupInfo) { return true; }
   
-  groupInfo[id] = true;
-  callback.call();
-  
+  groupInfo[id] = false;
+
+  if (callback) callback();
   return true;
 }
 
