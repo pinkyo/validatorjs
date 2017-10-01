@@ -67,7 +67,7 @@ function checkListener(listener) {
   
   const errorMessage = "listener must be a function with a parameter."
   if (!_.isFunction(listener)) {
-    throw new Error(errorMessage);
+    throw new TypeError(errorMessage);
   }
 }
 
@@ -81,7 +81,7 @@ function warnWhenNotRegistered(id, validationStorage) {
 function warnWhenIdNotInGroup(id, groupName, groupStroage) {
   const group = groupStroage[groupName];
   if (_.isNil(group) || !group[id]) {
-    console.warn(`id(${id}) is not in group(${group})`);
+    console.warn(`id(${id}) is not in group(${groupName})`);
   }
 }
 
@@ -314,7 +314,8 @@ function removeGroup(validator, id, group, callback) {
   
   const {groupStroage, validationStorage} = validator;
   warnWhenNotRegistered(id, validationStorage);
-  
+  if (_.isNil(validationStorage[id])) { return; }
+
   const groupInfo = groupStroage[group];
   warnWhenIdNotInGroup(id, group, groupStroage);
   if (_.isNil(groupInfo)) { return; }
@@ -345,6 +346,42 @@ function deregister(validator, id, callback) {
 }
 
 /**
+ * 
+ * @param {Object} validator inner object
+ */
+function printValidationInfo(validator) {
+  const {validationStorage} = validator;
+  const validationToPrint = [];
+  _.each((value, id) => {
+    validationToPrint.push({...value, id});
+  }, validationStorage);
+
+  console.info("============== VALIDATION INFO ==============")  
+  console.info(validationToPrint);
+  console.info("==============================================")  
+}
+
+/**
+ * 
+ * @param {Object} validator inner object 
+ */
+function printGroupInfo(validator) {
+  const {groupStroage} = validator;
+  const groupToPrint = {};
+  _.each((group) => {
+    const ids = [];
+    groupToPrint[group] = ids;
+    _.each((value, id) => {
+      if (value) ids.push(id);
+    }, group)
+  }, groupStroage);
+
+  console.info("================= GROUP INFO =================")
+  console.info(groupToPrint);
+  console.info("==============================================")
+}
+
+/**
  * create a central validator.
  */
 function createValidator() {
@@ -365,6 +402,8 @@ function createValidator() {
     addGroup: addGroup.bind(this, validator),
     removeGroup: removeGroup.bind(this, validator),
     deregister: deregister.bind(this, validator),
+    printValidationInfo: printValidationInfo.bind(this, validator),
+    printGroupInfo: printGroupInfo.bind(this, validator),
   };
   
   return operation;

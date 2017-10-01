@@ -1,5 +1,6 @@
 import test from 'ava';
 import _ from 'lodash';
+import sinon from 'sinon';
 import createValidator from '../src/createValidator';
 
 const id = 'test.id';
@@ -13,8 +14,16 @@ const validationChain = [({name, getter}) => getter() < 5? '': tip];
 const field = {id, groups, getter, name};
 
 test.beforeEach(t => {
+  t.context.warn = sinon.spy(global.console, "warn");
+  t.context.info = sinon.spy(global.console, "info");  
   t.context.validator = createValidator();
 });
+
+test.afterEach.always(t => {
+  const {info, warn} = t.context;
+  info.restore();
+  warn.restore();
+})
 
 test('create validator success.', t => {
   const {validator} = t.context;
@@ -169,4 +178,104 @@ test('deregister success', t => {
 
   t.true(callbackInvoked);
   t.deepEqual(result[id], undefined);
+});
+
+
+test('throw exception for field type error', t => {
+  const {validator} = t.context;
+  const fieldError = t.throws(
+    () => validator.register(null, validationChain),
+    TypeError);
+  t.truthy(fieldError)
+});
+
+test('throw exception for id type error', t => {
+  const {validator} = t.context;
+  const idError = t.throws(
+    () => validator.register(
+      {id: 1, getter, name},
+      validationChain),
+    TypeError);
+  t.truthy(idError);
+});
+
+test('throw exception for name type error', t => {
+  const {validator} = t.context;
+  const nameError = t.throws(
+    () => validator.register(
+      {id, getter, name: 1},
+      validationChain),
+    TypeError);
+  t.truthy(nameError);
+});
+
+test('throw exception for getter type error', t => {
+  const {validator} = t.context;
+  const getterError = t.throws(
+    () => validator.register(
+      {id, getter: 1, name},
+      validationChain),
+    TypeError);
+  t.truthy(getter);
+});
+
+test('throw exception for validation function chain type error', t => {
+  const {validator} = t.context;
+  const chainError = t.throws(
+    () => validator.register(
+      field, 1),
+    TypeError);
+  t.truthy(chainError)
+});
+
+test('throw exception for callback function type error', t => {
+  const {validator} = t.context;
+  const callbackError = t.throws(
+    () => validator.register(
+      field, validationChain, 1),
+    TypeError);
+  t.truthy(callbackError);
+});
+
+test('throw exception for listener function type error', t => {
+  const {validator} = t.context;
+  const listenerError = t.throws(
+    () => validator.subscribe(id, 1),
+    TypeError);
+  t.truthy(listenerError);
+});
+
+test('show warn when id has not been registered', t => {
+  const {validator, warn} = t.context;
+  warn.reset();  
+  validator.removeGroup(id, invalidGroup);
+
+  t.true(warn.calledOnce);
+});
+
+test('show warn when id is not in group', t => {
+   const {validator, warn} = t.context;
+   warn.reset();
+   validator.register(field, validationChain);
+   validator.removeGroup(id, invalidGroup);
+
+   t.true(warn.calledOnce);
+});
+
+test('show validation info', t => {
+  const {validator, info} = t.context;
+  info.reset();
+  validator.register(field, validationChain);
+  validator.printValidationInfo();
+
+  t.true(info.called)
+});
+
+test('show group info', t => {
+  const {validator, info} = t.context;
+  info.reset();
+  validator.register(field, validationChain);
+  validator.printGroupInfo();
+
+  t.true(info.called)
 });
