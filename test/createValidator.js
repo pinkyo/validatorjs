@@ -2,6 +2,7 @@ import test from 'ava';
 import _ from 'lodash';
 import sinon from 'sinon';
 import createValidator from '../src/createValidator';
+import {onePassed, allPassed} from '../src/util';
 
 const id = 'test.id';
 const group = 'test.group';
@@ -50,6 +51,7 @@ test('validate with group success.', t => {
   });
 
   t.true(callbackInvoked);
+  t.false(allPassed(result));
   t.deepEqual(result[id], [tip]);
 });
 
@@ -74,6 +76,7 @@ test('validateOne success', t => {
   });
   
   t.true(callbackInvoked);
+  t.false(onePassed(result));
   t.deepEqual(result, [tip]);
 });
 

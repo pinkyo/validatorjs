@@ -352,9 +352,9 @@ function deregister(validator, id, callback) {
 function printValidationInfo(validator) {
   const {validationStorage} = validator;
   const validationToPrint = [];
-  _.each((value, id) => {
+  _.each(validationStorage, (value, id) => {
     validationToPrint.push({...value, id});
-  }, validationStorage);
+  });
 
   console.info("============== VALIDATION INFO ==============")  
   console.info(validationToPrint);
@@ -368,13 +368,9 @@ function printValidationInfo(validator) {
 function printGroupInfo(validator) {
   const {groupStroage} = validator;
   const groupToPrint = {};
-  _.each((group) => {
-    const ids = [];
-    groupToPrint[group] = ids;
-    _.each((value, id) => {
-      if (value) ids.push(id);
-    }, group)
-  }, groupStroage);
+  _.each(groupStroage, (idMap, groupName) => {
+    groupToPrint[groupName] = _.filter(_.keys(idMap), id => idMap[id]);
+  });
 
   console.info("================= GROUP INFO =================")
   console.info(groupToPrint);
