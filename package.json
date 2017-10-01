@@ -36,5 +36,8 @@
   },
   "peerDependencies": {
     "lodash": "^4.17.4"
+  },
+  "engines": {
+    "node": "6.11.3"
   }
 }
