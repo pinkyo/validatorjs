@@ -62,12 +62,35 @@ function checkCallback(callback) {
   }
 }
 
+function checkListener(listener) {
+  if (_.isNil(listener)) { return; }
+  
+  const errorMessage = "listener must be a function with a parameter."
+  if (!_.isFunction(listener)) {
+    throw new Error(errorMessage);
+  }
+}
+
+function warnWhenNotRegistered(id, validationStorage) {
+  if (_.isNil(validationStorage[id])) {
+    console.warn(`id(${id}) haven't be registered, check it before subscribe.`);
+    return false;
+  }
+}
+
+function warnWhenIdNotInGroup(id, groupName, groupStroage) {
+  const group = groupStroage[groupName];
+  if (_.isNil(group) || !group[id]) {
+    console.warn(`id(${id}) is not in group(${group})`);
+  }
+}
+
 /**
 * register field to validator.
-* @param {* validator, inner object} validator
-* @param {* field info, include id, name, groups, getter} field 
-* @param {* validation chain is array of validation function with a parameter} validationChain 
-* @param {* callback function} callback 
+* @param {Object} validator inner object
+* @param {Object} field field info, include id, name, groups, getter
+* @param {Array} validationChain validation chain is array of validation function with a parameter 
+* @param {Function} callback callback function
 */
 function register(validator, field, validationChain, callback) {
   checkFieldType(field);
@@ -99,65 +122,83 @@ function register(validator, field, validationChain, callback) {
 }
 
 /**
-* 
-* @param {* validator, inner object} validator 
-* @param {* groups to be validated. if null, all field will be validated.} groups 
+* validate all fields in groups. if groups is null, validate all fields.
+* @param {Object} validator inner object
+* @param {Array<String>} groups groups to validate.
+* @param {Function} callback callback function.
 */
 function validate(validator, groups, callback) {
   checkGroups(groups);
   checkCallback(callback);
-  
+
   const {validationStorage, groupStroage} = validator;
   
-  //fieldIds is ids to be validated.
-  let fieldIds = new Set();
-  if (groups) {
-    groups.forEach(function(element) {
+  //fieldIds is ids to validate.
+  let fieldIds = null;
+  if (_.isNil(groups)) {
+    fieldIds = _.keys(validationStorage);
+  } else {
+    const fieldIdSet = new Set()
+    _.each(groups, (element) => {
       const group = groupStroage[element] || {};
       for (const id in group)
-      if (group[id]) fieldIds.add(id); 
-    }, this);
-  } else {
-    fieldIds = _.keys(validationStorage);
+      if (group[id]) fieldIdSet.add(id); 
+    });
+
+    fieldIds = _.toArray(fieldIdSet);
   }
-  
+
   const result = {};
-  fieldIds.forEach(function(element) {
-    const validation = validationStorage[element];
-    const {name, getter, validationChain, listeners = []} = validation;
-    
-    const validationResult = [];
-    if (!_.isNil(validationChain)) {
-      _.each(validationChain, (f) => {
-        validationResult.push(f({name, getter}));
-      });
-    }
+  _.each(fieldIds, (element) => {
+    const validationResult = validateOne(validator, element, null);
     result[element] = validationResult;
-    
-    listeners.forEach(function(f) {
-      f(validationResult);
-    }, this);
-  }, this);
+  });
   
   if (callback) callback();
   return result;
 }
 
-function checkListener(listener) {
-  if (_.isNil(listener)) { return; }
+/**
+ * validate one field.
+ * @param {Object} validator inner object
+ * @param {String} id field id 
+ * @param {Function} callback callback function. 
+ */
+function validateOne(validator, id, callback) {
+  checkId(id);
+  checkCallback(callback);
+
+  const {validationStorage} = validator;  
+  const validation = validationStorage[id];
+  warnWhenNotRegistered(id, validationStorage);
   
-  const errorMessage = "listener must be a function with a parameter."
-  if (!_.isFunction(listener)) {
-    throw new Error(errorMessage);
+  // exit when id has not been registered.
+  if (_.isNil(validation)) { return; }
+
+  const {name, getter, validationChain, listeners = []} = validation;
+  
+  const validationResult = [];
+  if (!_.isNil(validationChain)) {
+    _.each(validationChain, (f) => {
+      validationResult.push(f({name, getter}));
+    });
   }
+  
+  _.each(listeners, (f) => {
+    f(validationResult);
+  });
+
+  if (!_.isNil(callback)) callback();
+
+  return validationResult;
 }
 
 /**
 * subscribe a listener, return unsubscribe function.
-* @param {* inner object} validator 
-* @param {* field id} id 
-* @param {* listener function} listener 
-* @param {* callback function} callback 
+* @param {Object} validator inner object
+* @param {String} id field id 
+* @param {Function} listener listener function 
+* @param {Function} callback callback function
 */
 function subscribe(validator, id, listener, callback) {
   checkListener(listener);
@@ -166,12 +207,9 @@ function subscribe(validator, id, listener, callback) {
   if (_.isNil(listener)) { return true; }
   
   const {validationStorage} = validator;
-  const validation = validationStorage[id];
-  if (_.isNil(validation)) {
-    console.warn(`id ${id} haven't be registered, check it before subscribe.`);
-    return false;
-  }
+  warnWhenNotRegistered(id, validationStorage);
   
+  const validation = validationStorage[id];
   const {listeners = []} = validation;
   listeners.push(listener)
   validation.listeners = listeners;
@@ -186,17 +224,38 @@ function subscribe(validator, id, listener, callback) {
 }
 
 /**
+ * clear all listener of one field.
+ * @param {Object} validator inner object
+ * @param {String} id field id 
+ * @param {Function} callback callback function 
+ */
+function clearListeners(validator, id, callback) {
+  checkId(id);
+  checkCallback(callback);
+
+  const {validationStorage} = validator;
+  warnWhenNotRegistered(id, validationStorage);
+
+  const validation = validationStorage[id];
+  if (_.isNil(validation)) { return; } 
+  
+  validation.listeners = [];
+  if (callback) callback();
+}
+
+/**
 * update group info.
-* @param {* inner object} validator 
-* @param {* field id} id 
-* @param {* new groups} groups 
-* @param {* callback when finished} callback 
+* @param {Object} validator inner object 
+* @param {String} id field id 
+* @param {Array<String>} groups new groups
+* @param {Function} callback callback function 
 */
 function updateGroups(validator, id, groups, callback) {
   checkGroups(groups);
   checkCallback(callback);
   
-  const {groupStroage} = validator;
+  const {groupStroage, validationStorage} = validator;
+  warnWhenNotRegistered(id ,validationStorage);
   
   //remove all groups.
   _.values(groupStroage).forEach(function(element) {
@@ -219,16 +278,18 @@ function updateGroups(validator, id, groups, callback) {
 /**
 * 
 * add group to a field.
-* @param {* inner object} validator 
-* @param {* field id} id 
-* @param {* group name} group 
-* @param {* callback function} callback 
+* @param {Object} validator inner
+* @param {String} id field id 
+* @param {String} group group name
+* @param {Function} callback callback function
 */
 function addGroup(validator, id, group, callback) {
   checkGroups([group]);
   checkCallback(callback);
   
-  const { groupStroage }  = validator;
+  const {groupStroage, validationStorage}  = validator;
+  warnWhenNotRegistered(id, validationStorage);
+  
   let groupInfo = groupStroage[group];
   if (!groupInfo) {
     groupInfo = {};
@@ -242,23 +303,45 @@ function addGroup(validator, id, group, callback) {
 
 /**
 * remove group from a field.
-* @param {* inner object} validator 
-* @param {* field id} id 
-* @param {* group name} group 
-* @param {* callback function} callback 
+* @param {Object} validator inner object
+* @param {String} id field id 
+* @param {String} group group name 
+* @param {Function} callback callback function 
 */
 function removeGroup(validator, id, group, callback) {
   checkGroups([group]);
   checkCallback(callback);
   
-  const { groupStroage } = validator;
+  const {groupStroage, validationStorage} = validator;
+  warnWhenNotRegistered(id, validationStorage);
+  
   const groupInfo = groupStroage[group];
-  if (!groupInfo) { return true; }
+  warnWhenIdNotInGroup(id, group, groupStroage);
+  if (_.isNil(groupInfo)) { return; }
   
   groupInfo[id] = false;
 
   if (callback) callback();
-  return true;
+}
+
+/**
+ * deregeister a field from validator.
+ * @param {Object} validator inner object 
+ * @param {String} id field id
+ * @param {Function} callback callback function
+ */
+function deregister(validator, id, callback) {
+  checkId(id);
+  checkCallback(callback);
+
+  const {validationStorage, groupStroage} = validator;
+  const validation = validationStorage[id];
+
+  warnWhenNotRegistered(id, validationStorage);
+  if (_.isNil(validation)) { return; }
+
+  delete validationStorage[id];
+  if (callback) callback()
 }
 
 /**
@@ -275,10 +358,13 @@ function createValidator() {
   const operation = {
     register: register.bind(this, validator),
     validate: validate.bind(this, validator),
+    validateOne: validateOne.bind(this, validator),
     subscribe: subscribe.bind(this, validator),
+    clearListeners: clearListeners.bind(this, validator),
     updateGroups: updateGroups.bind(this, validator),
     addGroup: addGroup.bind(this, validator),
-    removeGroup: removeGroup.bind(this, validator)
+    removeGroup: removeGroup.bind(this, validator),
+    deregister: deregister.bind(this, validator),
   };
   
   return operation;

@@ -56,6 +56,17 @@ test('validate without group success.', t => {
   t.deepEqual(result[id], [tip]);
 });
 
+test('validateOne success', t => {
+  const {validator} = t.context;
+  let callbackInvoked = false;
+  validator.register(field, validationChain);
+  const result = validator.validateOne(id, () => {
+    callbackInvoked = true;
+  });
+  
+  t.true(callbackInvoked);
+  t.deepEqual(result, [tip]);
+});
 
 test('subscribe success', t => {
   const {validator} = t.context;
@@ -85,6 +96,23 @@ test('unsubscribe success', t => {
     callbackInvoked = true;
   });
   unsubscribe();
+  validator.validate();
+  
+  t.true(callbackInvoked);
+  t.deepEqual(listenerRes, null);
+});
+
+test('clear all listener success', t => {
+  const {validator} = t.context;
+  let callbackInvoked = false;
+  let listenerRes = null;
+  validator.register(field, validationChain);
+  const unsubscribe = validator.subscribe(id, (res) => {
+    listenerRes = res;
+  });
+  validator.clearListeners(id, () => {
+    callbackInvoked = true;
+  });
   validator.validate();
   
   t.true(callbackInvoked);
@@ -128,4 +156,17 @@ test('upate group success', t => {
 
   t.true(callbackInvoked);
   t.deepEqual(result[id], [tip]);
+});
+
+test('deregister success', t => {
+  const {validator} = t.context;
+  let callbackInvoked = false;
+  validator.register(field, validationChain);
+  validator.deregister(id, () => {
+    callbackInvoked = true;
+  });
+  const result = validator.validate();
+
+  t.true(callbackInvoked);
+  t.deepEqual(result[id], undefined);
 });
