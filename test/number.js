@@ -26,7 +26,7 @@ test('is number', t => {
   t.falsy(result);
 });
 
-test('is not number', t => {
+test('false to be number', t => {
   const result = isNum()(stringField);
   t.truthy(result);
 });
@@ -36,7 +36,7 @@ test('is integer', t => {
   t.falsy(result);
 });
 
-test('is not integer', t => {
+test('false to be integer', t => {
   const result = isInteger()(floatData);
   t.truthy(result);
 });
@@ -46,7 +46,17 @@ test('is finite number', t => {
   t.falsy(result);
 });
 
-test('is not finite number', t => {
+test('false to be finite number', t => {
   const result = isFinite()(inFiniteData);
+  t.truthy(result);
+});
+
+test('is greater than 3', t => {
+  const result = greaterThan(3)(intData);
+  t.falsy(result);
+});
+
+test('false to be greater than 10', t => {
+  const result = greaterThan(10)(intData);
   t.truthy(result);
 });
