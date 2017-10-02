@@ -11,12 +11,12 @@ const groups = [group];
 const name = 'test.name';
 const getter =() => 5;
 const tip = 'value must less than 5.';
-const validationChain = [({name, getter}) => getter() < 5? '': tip];
+const validationChain = [({name, value}) => value < 5? '': tip];
 const field = {id, groups, getter, name};
 
 test.beforeEach(t => {
   t.context.warn = sinon.spy(global.console, "warn");
-  t.context.info = sinon.spy(global.console, "info");  
+  t.context.info = sinon.spy(global.console, "info");
   t.context.validator = createValidator();
 });
 
@@ -37,7 +37,7 @@ test('register validator success.', t => {
   const result = validator.register({id: 'test.id', getter: () => 0}, null, () => {
     callbackInvoked = true;
   });
-  
+
   t.true(callbackInvoked);
   t.true(result);
 });
@@ -62,7 +62,7 @@ test('validate without group success.', t => {
   const result = validator.validate(null, () => {
     callbackInvoked = true;
   });
-  
+
   t.true(callbackInvoked);
   t.deepEqual(result[id], [tip]);
 });
@@ -74,7 +74,7 @@ test('validateOne success', t => {
   const result = validator.validateOne(id, () => {
     callbackInvoked = true;
   });
-  
+
   t.true(callbackInvoked);
   t.false(onePassed(result));
   t.deepEqual(result, [tip]);
@@ -91,7 +91,7 @@ test('subscribe success', t => {
     callbackInvoked = true;
   });
   validator.validate();
-  
+
   t.true(_.isFunction(unsubscribe));
   t.true(callbackInvoked);
   t.deepEqual(listenerRes, [tip]);
@@ -105,7 +105,7 @@ test('suscribe fail with null listener', t => {
     callbackInvoked = true;
   });
   validator.validate();
-  
+
   t.false(_.isFunction(unsubscribe));
   t.false(callbackInvoked);
 });
@@ -122,7 +122,7 @@ test('unsubscribe success', t => {
   });
   unsubscribe();
   validator.validate();
-  
+
   t.true(callbackInvoked);
   t.deepEqual(listenerRes, null);
 });
@@ -139,7 +139,7 @@ test('clear all listener success', t => {
     callbackInvoked = true;
   });
   validator.validate();
-  
+
   t.true(callbackInvoked);
   t.deepEqual(listenerRes, null);
 });
@@ -283,7 +283,7 @@ test('throw exception for listener function type error', t => {
 
 test('show warn when id has not been registered', t => {
   const {validator, warn} = t.context;
-  warn.reset();  
+  warn.reset();
   validator.removeGroup(id, invalidGroup);
 
   t.true(warn.calledOnce);

@@ -1,5 +1,10 @@
 import _ from 'lodash';
 
+function getName(name, id) {
+  if (_.isNil(name)) return id;
+  return name;
+}
+
 function checkFieldType(field) {
   const errorMessage ="field can't be null and must be an object.";
   if (!_.isObject(field)) {
@@ -23,7 +28,7 @@ function checkGetter(getter) {
 
 function checkName(name) {
   if (_.isNil(name)) { return; }
-  
+
   const errorMessage = "name must be a string."
   if (!_.isString(name)) {
     throw new TypeError(errorMessage);
@@ -32,12 +37,12 @@ function checkName(name) {
 
 function checkGroups(groups) {
   if (_.isNil(groups)) { return; }
-  
-  const errorMessage = "groups must be an array of strings.";    
+
+  const errorMessage = "groups must be an array of strings.";
   if (!_.isArray(groups)) {
     throw new TypeError(errorMessage);
   }
-  
+
   groups.forEach(function(element) {
     if (!_.isString(element)) {
       throw new TypeError(errorMessage);
@@ -55,7 +60,7 @@ function checkValidationChain(validationChain) {
 
 function checkCallback(callback) {
   if (_.isNil(callback)) { return; }
-  
+
   const errorMessage = "callback must be a function.";
   if (!_.isFunction(callback)) {
     throw new TypeError(errorMessage);
@@ -64,7 +69,7 @@ function checkCallback(callback) {
 
 function checkListener(listener) {
   if (_.isNil(listener)) { return; }
-  
+
   const errorMessage = "listener must be a function with a parameter."
   if (!_.isFunction(listener)) {
     throw new TypeError(errorMessage);
@@ -85,16 +90,22 @@ function warnWhenIdNotInGroup(id, groupName, groupStroage) {
   }
 }
 
+function warnWhenIdHaveRegister(id, validationStorage) {
+  if (_.isNil(validationStorage[id])) return;
+  console.warn(`id(${id}} have been registered.
+    remember to deregister it before register again.`);
+}
+
 /**
 * register field to validator.
 * @param {Object} validator inner object
 * @param {Object} field field info, include id, name, groups, getter
-* @param {Array} validationChain validation chain is array of validation function with a parameter 
+* @param {Array} validationChain validation chain is array of validation function with a parameter
 * @param {Function} callback callback function
 */
 function register(validator, field, validationChain, callback) {
   checkFieldType(field);
-  
+
   const {id, getter, groups, name} = field;
   checkId(id);
   checkGetter(getter);
@@ -104,6 +115,9 @@ function register(validator, field, validationChain, callback) {
   checkCallback(callback);
 
   const {validationStorage, groupStroage} = validator;
+  warnWhenIdHaveRegister(id, validationStorage);
+  if (!_.isNil(validationStorage[id])) { return; }
+
   validationStorage[id] = {name, validationChain, getter};
   if (!_.isNil(groups)) {
     groups.forEach(function(element) {
@@ -112,11 +126,11 @@ function register(validator, field, validationChain, callback) {
         groupStroage[element] = {};
         group = groupStroage[element];
       }
-      
+
       group[id] = true;
     }, this);
   }
-  
+
   if (!_.isNil(callback)) callback();
   return true;
 }
@@ -132,7 +146,7 @@ function validate(validator, groups, callback) {
   checkCallback(callback);
 
   const {validationStorage, groupStroage} = validator;
-  
+
   //fieldIds is ids to validate.
   let fieldIds = null;
   if (_.isNil(groups)) {
@@ -142,7 +156,7 @@ function validate(validator, groups, callback) {
     _.each(groups, (element) => {
       const group = groupStroage[element] || {};
       for (const id in group)
-      if (group[id]) fieldIdSet.add(id); 
+      if (group[id]) fieldIdSet.add(id);
     });
 
     fieldIds = _.toArray(fieldIdSet);
@@ -153,7 +167,7 @@ function validate(validator, groups, callback) {
     const validationResult = validateOne(validator, element, null);
     result[element] = validationResult;
   });
-  
+
   if (!_.isNil(callback)) callback();
   return result;
 }
@@ -161,29 +175,29 @@ function validate(validator, groups, callback) {
 /**
  * validate one field.
  * @param {Object} validator inner object
- * @param {String} id field id 
- * @param {Function} callback callback function. 
+ * @param {String} id field id
+ * @param {Function} callback callback function.
  */
 function validateOne(validator, id, callback) {
   checkId(id);
   checkCallback(callback);
 
-  const {validationStorage} = validator;  
+  const {validationStorage} = validator;
   const validation = validationStorage[id];
   warnWhenNotRegistered(id, validationStorage);
-  
+
   // exit when id has not been registered.
   if (_.isNil(validation)) { return; }
 
   const {name, getter, validationChain, listeners = []} = validation;
-  
+
   const validationResult = [];
   if (!_.isNil(validationChain)) {
     _.each(validationChain, (f) => {
-      validationResult.push(f({name, getter}));
+      validationResult.push(f({name: getName(name, id), value: getter()}));
     });
   }
-  
+
   _.each(listeners, (f) => {
     f(validationResult);
   });
@@ -196,24 +210,24 @@ function validateOne(validator, id, callback) {
 /**
 * subscribe a listener, return unsubscribe function.
 * @param {Object} validator inner object
-* @param {String} id field id 
-* @param {Function} listener listener function 
+* @param {String} id field id
+* @param {Function} listener listener function
 * @param {Function} callback callback function
 */
 function subscribe(validator, id, listener, callback) {
   checkListener(listener);
   checkCallback(callback);
-  
+
   if (_.isNil(listener)) { return true; }
-  
+
   const {validationStorage} = validator;
   warnWhenNotRegistered(id, validationStorage);
-  
+
   const validation = validationStorage[id];
   const {listeners = []} = validation;
   listeners.push(listener)
   validation.listeners = listeners;
-  
+
   if (!_.isNil(callback)) callback();
   return () => {
     const index = listeners.indexOf(listener);
@@ -226,8 +240,8 @@ function subscribe(validator, id, listener, callback) {
 /**
  * clear all listener of one field.
  * @param {Object} validator inner object
- * @param {String} id field id 
- * @param {Function} callback callback function 
+ * @param {String} id field id
+ * @param {Function} callback callback function
  */
 function clearListeners(validator, id, callback) {
   checkId(id);
@@ -237,31 +251,31 @@ function clearListeners(validator, id, callback) {
   warnWhenNotRegistered(id, validationStorage);
 
   const validation = validationStorage[id];
-  if (_.isNil(validation)) { return; } 
-  
+  if (_.isNil(validation)) { return; }
+
   validation.listeners = [];
   if (!_.isNil(callback)) callback();
 }
 
 /**
 * update group info.
-* @param {Object} validator inner object 
-* @param {String} id field id 
+* @param {Object} validator inner object
+* @param {String} id field id
 * @param {Array<String>} groups new groups
-* @param {Function} callback callback function 
+* @param {Function} callback callback function
 */
 function updateGroups(validator, id, groups, callback) {
   checkGroups(groups);
   checkCallback(callback);
-  
+
   const {groupStroage, validationStorage} = validator;
   warnWhenNotRegistered(id ,validationStorage);
-  
+
   //remove all groups.
   _.values(groupStroage).forEach(function(element) {
     element[id] = false;
   }, this);
-  
+
   groups.forEach(function(element) {
     let group = groupStroage[element];
     if (!group) {
@@ -270,33 +284,33 @@ function updateGroups(validator, id, groups, callback) {
     }
     group[id] = true;
   }, this);
-  
+
   if (!_.isNil(callback)) callback();
   return true;
 }
 
 /**
-* 
+*
 * add group to a field.
 * @param {Object} validator inner
-* @param {String} id field id 
+* @param {String} id field id
 * @param {String} group group name
 * @param {Function} callback callback function
 */
 function addGroup(validator, id, group, callback) {
   checkGroups([group]);
   checkCallback(callback);
-  
+
   const {groupStroage, validationStorage}  = validator;
   warnWhenNotRegistered(id, validationStorage);
-  
+
   let groupInfo = groupStroage[group];
   if (!groupInfo) {
     groupInfo = {};
     groupStroage[group] = groupInfo;
   }
   groupInfo[id] = true;
-  
+
   if (!_.isNil(callback)) callback();
   return true;
 }
@@ -304,14 +318,14 @@ function addGroup(validator, id, group, callback) {
 /**
 * remove group from a field.
 * @param {Object} validator inner object
-* @param {String} id field id 
-* @param {String} group group name 
-* @param {Function} callback callback function 
+* @param {String} id field id
+* @param {String} group group name
+* @param {Function} callback callback function
 */
 function removeGroup(validator, id, group, callback) {
   checkGroups([group]);
   checkCallback(callback);
-  
+
   const {groupStroage, validationStorage} = validator;
   warnWhenNotRegistered(id, validationStorage);
   if (_.isNil(validationStorage[id])) { return; }
@@ -319,7 +333,7 @@ function removeGroup(validator, id, group, callback) {
   const groupInfo = groupStroage[group];
   warnWhenIdNotInGroup(id, group, groupStroage);
   if (_.isNil(groupInfo)) { return; }
-  
+
   groupInfo[id] = false;
 
   if (!_.isNil(callback)) callback();
@@ -327,7 +341,7 @@ function removeGroup(validator, id, group, callback) {
 
 /**
  * deregeister a field from validator.
- * @param {Object} validator inner object 
+ * @param {Object} validator inner object
  * @param {String} id field id
  * @param {Function} callback callback function
  */
@@ -346,7 +360,7 @@ function deregister(validator, id, callback) {
 }
 
 /**
- * 
+ *
  * @param {Object} validator inner object
  */
 function printValidationInfo(validator) {
@@ -356,14 +370,14 @@ function printValidationInfo(validator) {
     validationToPrint.push({...value, id});
   });
 
-  console.info("============== VALIDATION INFO ==============")  
+  console.info("============== VALIDATION INFO ==============")
   console.info(validationToPrint);
-  console.info("==============================================")  
+  console.info("==============================================")
 }
 
 /**
- * 
- * @param {Object} validator inner object 
+ *
+ * @param {Object} validator inner object
  */
 function printGroupInfo(validator) {
   const {groupStroage} = validator;
@@ -387,7 +401,7 @@ function createValidator() {
     validationStorage,
     groupStroage
   };
-  
+
   const operation = {
     register: register.bind(this, validator),
     validate: validate.bind(this, validator),
@@ -401,7 +415,7 @@ function createValidator() {
     printValidationInfo: printValidationInfo.bind(this, validator),
     printGroupInfo: printGroupInfo.bind(this, validator),
   };
-  
+
   return operation;
 }
 
