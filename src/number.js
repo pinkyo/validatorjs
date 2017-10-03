@@ -1,10 +1,5 @@
 import _ from 'lodash';
-
-function checkNum(num) {
-  if (!_.isNumber(num))
-    throw new TypeError(`${num} is not a number.`);
-}
-
+import {checkNum} from './common';
 
 /**
  * return a validation function to check value is a
@@ -64,34 +59,6 @@ export function notGreaterThan(num) {
     checkNum(value);
     if (value <= num) return;
     return `${name} must not be greater than ${num}.`;
-  }
-}
-
-/**
- * return a validation function to check if value is
- * equal to num after run.
- * @param {Number} num number to compare
- */
-export function equalTo(num) {
-  checkNum(num);
-  return ({value, name}) => {
-    checkNum(value);
-    if (_.isEqual(value, num)) return;
-    return `${name} must be equal to ${num}.`;
-  }
-}
-
-/**
- * return a validation function to check if value is
- * not equal to num after run.
- * @param {Number} num number to compare
- */
-export function notEqualTo(num) {
-  checkNum(num);
-  return ({value, name}) => {
-    checkNum(value);
-    if (!_.isEqual(value, num)) return;
-    return `${name} must not be equal to ${num}.`;
   }
 }
 

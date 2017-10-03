@@ -6,8 +6,6 @@ import {
   isFinite,
   greaterThan,
   notGreaterThan,
-  equalTo,
-  notEqualTo,
   lessThan,
   notLessThan
 } from '../src/number';
@@ -68,26 +66,6 @@ test('is not greater than 6', t => {
 
 test('false to be not greater than 0', t => {
   const result = notGreaterThan(0)(intData);
-  t.truthy(result);
-});
-
-test('is equal to 5', t => {
-  const result = equalTo(5)(intData);
-  t.falsy(result);
-});
-
-test('false to be equal to 0', t => {
-  const result = equalTo(0)(intData);
-  t.truthy(result);
-});
-
-test('is not equal to 0', t => {
-  const result = notEqualTo(0)(intData);
-  t.falsy(result);
-});
-
-test('false to be not equal to 5', t => {
-  const result = notEqualTo(5)(intData);
   t.truthy(result);
 });
 

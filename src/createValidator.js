@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-function getName(name, id) {
+function getDisplayName(name, id) {
   if (_.isNil(name)) return id;
   return name;
 }
@@ -194,7 +194,7 @@ function validateOne(validator, id, callback) {
   const validationResult = [];
   if (!_.isNil(validationChain)) {
     _.each(validationChain, (f) => {
-      validationResult.push(f({name: getName(name, id), value: getter()}));
+      validationResult.push(f({name: getDisplayName(name, id), value: getter()}));
     });
   }
 
