@@ -1,7 +1,7 @@
-# Validator
+# Validatorjs
 
-[![Travis](https://img.shields.io/travis/pinkyo/Validator.svg)](https://travis-ci.org/pinkyo/Validator)
-[![Coveralls](https://img.shields.io/coveralls/pinkyo/Validator.svg)](https://coveralls.io/github/pinkyo/Validator)
+[![Travis](https://img.shields.io/travis/pinkyo/validatorjs.svg)](https://coveralls.io/github/pinkyo/validatorjs)
+[![Coveralls](https://img.shields.io/coveralls/pinkyo/validatorjs.svg)](https://travis-ci.org/pinkyo/validatorjs)
 
 ### Usage
 
@@ -21,5 +21,5 @@ TODO
 TODO
 
 ### LICENSE
- 
+
  MIT
