@@ -1,8 +1,8 @@
 {
-  "name": "validator",
+  "name": "validatorjs",
   "version": "1.0.0",
-  "description": "central validator to provided validation solution",
-  "main": "index.js",
+  "description": "central validator to provide an alternative solution.",
+  "main": "lib/index.js",
   "ava": {
     "files": [
       "test/*.js"
