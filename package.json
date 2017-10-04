@@ -1,6 +1,6 @@
 {
   "name": "@pinkyo/validatorjs",
-  "version": "0.0.3",
+  "version": "0.0.2",
   "description": "central validator to provide an alternative solution.",
   "main": "lib/index.js",
   "files": [
@@ -8,6 +8,10 @@
     "README.md",
     "lib/"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pinkyo/validatorjs.git"
+  },
   "ava": {
     "files": [
       "test/*.js"

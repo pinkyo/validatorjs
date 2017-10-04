@@ -2,6 +2,9 @@
 
 [![Travis](https://img.shields.io/travis/pinkyo/validatorjs.svg)](https://travis-ci.org/pinkyo/validatorjs)
 [![Coveralls](https://img.shields.io/coveralls/pinkyo/validatorjs.svg)](https://coveralls.io/github/pinkyo/validatorjs)
+[![npm (scoped)](https://img.shields.io/npm/v/@pinkyo/validatorjs.svg?style=plastic)](https://www.npmjs.com/package/@pinkyo/validatorjs)
+[![npm](https://img.shields.io/npm/dy/@pinkyo/validatorjs.svg)](https://www.npmjs.com/package/@pinkyo/validatorjs)
+[![npm](https://img.shields.io/npm/l/@pinkyo/validatorjs.svg)](https://www.npmjs.com/package/@pinkyo/validatorjs)
 
 validatorjs gives you nearly total control when you validate form values, compare to the existing validator tools. You can use it as a part to wrap the **\<input\>**, **\<textarea\>** and so on, with an error message display. although I try to emit convention usage, I can't get away from all and there are stil some convention usages.
 
