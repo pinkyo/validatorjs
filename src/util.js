@@ -11,7 +11,7 @@ function checkOneResult(oneResult) {
 
 function checkResults(results) {
   if (!_.isObject(results)) {
-    throw new TypeError('validate result has type error.')
+    throw new TypeError('validate result has type error.');
   }
 }
 

@@ -5,17 +5,17 @@ import createValidator from '../src/createValidator';
 
 const id = 'test.id';
 const group = 'test.group';
-const invalidGroup = "test.group.invalid";
+const invalidGroup = 'test.group.invalid';
 const groups = [group];
 const name = 'test.name';
 const getter =() => 5;
 const tip = 'value must less than 5.';
-const validationChain = [({name, value}) => value < 5? '': tip];
+const validationChain = [({value}) => value < 5? '': tip];
 const field = {id, groups, getter, name};
 
 test.beforeEach(t => {
-  t.context.warn = sinon.spy(global.console, "warn");
-  t.context.info = sinon.spy(global.console, "info");
+  t.context.warn = sinon.spy(global.console, 'warn');
+  t.context.info = sinon.spy(global.console, 'info');
   t.context.validator = createValidator();
 });
 
@@ -23,7 +23,7 @@ test.afterEach.always(t => {
   const {info, warn} = t.context;
   info.restore();
   warn.restore();
-})
+});
 
 test('create validator success.', t => {
   const {validator} = t.context;
@@ -129,7 +129,7 @@ test('clear all listener success', t => {
   let callbackInvoked = false;
   let listenerRes = null;
   validator.register(field, validationChain);
-  const unsubscribe = validator.subscribe(id, (res) => {
+  validator.subscribe(id, (res) => {
     listenerRes = res;
   });
   validator.clearListeners(id, () => {
@@ -199,7 +199,7 @@ test('throw exception for field type error', t => {
   const fieldError = t.throws(
     () => validator.register(null, validationChain),
     TypeError);
-  t.truthy(fieldError)
+  t.truthy(fieldError);
 });
 
 test('throw exception for id type error', t => {
@@ -249,7 +249,7 @@ test('throw exception for getter type error', t => {
       {id, getter: 1, name},
       validationChain),
     TypeError);
-  t.truthy(getter);
+  t.truthy(getterError);
 });
 
 test('throw exception for validation function chain type error', t => {
@@ -258,7 +258,7 @@ test('throw exception for validation function chain type error', t => {
     () => validator.register(
       field, 1),
     TypeError);
-  t.truthy(chainError)
+  t.truthy(chainError);
 });
 
 test('throw exception for callback function type error', t => {
@@ -287,12 +287,12 @@ test('show warn when id has not been registered', t => {
 });
 
 test('show warn when id is not in group', t => {
-   const {validator, warn} = t.context;
-   warn.reset();
-   validator.register(field, validationChain);
-   validator.removeGroup(id, invalidGroup);
+  const {validator, warn} = t.context;
+  warn.reset();
+  validator.register(field, validationChain);
+  validator.removeGroup(id, invalidGroup);
 
-   t.true(warn.calledOnce);
+  t.true(warn.calledOnce);
 });
 
 test('show validation info', t => {
@@ -301,7 +301,7 @@ test('show validation info', t => {
   validator.register(field, validationChain);
   validator.printValidationInfo();
 
-  t.true(info.called)
+  t.true(info.called);
 });
 
 test('show group info', t => {
@@ -310,7 +310,7 @@ test('show group info', t => {
   validator.register(field, validationChain);
   validator.printGroupInfo();
 
-  t.true(info.called)
+  t.true(info.called);
 });
 
 test('show all info', t => {
@@ -320,4 +320,4 @@ test('show all info', t => {
   validator.printAllInfo();
 
   t.true(info.calledOnce);
-})
+});

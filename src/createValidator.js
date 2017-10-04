@@ -6,21 +6,21 @@ function getDisplayName(name, id) {
 }
 
 function checkFieldType(field) {
-  const errorMessage ="field can't be null and must be an object.";
+  const errorMessage ='field can\'t be null and must be an object.';
   if (!_.isObject(field)) {
     throw new TypeError(errorMessage);
   }
 }
 
 function checkId(id) {
-  const errorMessage = "id must not be null and must be a string.";
+  const errorMessage = 'id must not be null and must be a string.';
   if (!_.isString(id)) {
     throw new TypeError(errorMessage);
   }
 }
 
 function checkGetter(getter) {
-  const errorMessage = "getter must a function without paramter.";
+  const errorMessage = 'getter must a function without paramter.';
   if (!_.isFunction(getter)) {
     throw new TypeError(errorMessage);
   }
@@ -29,7 +29,7 @@ function checkGetter(getter) {
 function checkName(name) {
   if (_.isNil(name)) { return; }
 
-  const errorMessage = "name must be a string."
+  const errorMessage = 'name must be a string.';
   if (!_.isString(name)) {
     throw new TypeError(errorMessage);
   }
@@ -38,7 +38,7 @@ function checkName(name) {
 function checkGroups(groups) {
   if (_.isNil(groups)) { return; }
 
-  const errorMessage = "groups must be an array of strings.";
+  const errorMessage = 'groups must be an array of strings.';
   if (!_.isArray(groups)) {
     throw new TypeError(errorMessage);
   }
@@ -52,7 +52,7 @@ function checkGroups(groups) {
 
 function checkValidationChain(validationChain) {
   if (_.isNil(validationChain)) { return; }
-  const errorMessage = "validation chain must be array of functions.";
+  const errorMessage = 'validation chain must be array of functions.';
   if (!_.isArray(validationChain)) {
     throw new TypeError(errorMessage);
   }
@@ -61,7 +61,7 @@ function checkValidationChain(validationChain) {
 function checkCallback(callback) {
   if (_.isNil(callback)) { return; }
 
-  const errorMessage = "callback must be a function.";
+  const errorMessage = 'callback must be a function.';
   if (!_.isFunction(callback)) {
     throw new TypeError(errorMessage);
   }
@@ -70,7 +70,7 @@ function checkCallback(callback) {
 function checkListener(listener) {
   if (_.isNil(listener)) { return; }
 
-  const errorMessage = "listener must be a function with a parameter."
+  const errorMessage = 'listener must be a function with a parameter.';
   if (!_.isFunction(listener)) {
     throw new TypeError(errorMessage);
   }
@@ -152,11 +152,11 @@ function validate(validator, groups, callback) {
   if (_.isNil(groups)) {
     fieldIds = _.keys(validationStorage);
   } else {
-    const fieldIdSet = new Set()
+    const fieldIdSet = new Set();
     _.each(groups, (element) => {
       const group = groupStroage[element] || {};
       for (const id in group)
-      if (group[id]) fieldIdSet.add(id);
+        if (group[id]) fieldIdSet.add(id);
     });
 
     fieldIds = _.toArray(fieldIdSet);
@@ -225,7 +225,7 @@ function subscribe(validator, id, listener, callback) {
 
   const validation = validationStorage[id];
   const {listeners = []} = validation;
-  listeners.push(listener)
+  listeners.push(listener);
   validation.listeners = listeners;
 
   if (!_.isNil(callback)) callback();
@@ -349,14 +349,14 @@ function deregister(validator, id, callback) {
   checkId(id);
   checkCallback(callback);
 
-  const {validationStorage, groupStroage} = validator;
+  const {validationStorage} = validator;
   const validation = validationStorage[id];
 
   warnWhenNotRegistered(id, validationStorage);
   if (_.isNil(validation)) { return; }
 
   delete validationStorage[id];
-  if (!_.isNil(callback)) callback()
+  if (!_.isNil(callback)) callback();
 }
 
 function printValidationInfoHelper(validationStorage) {
@@ -375,9 +375,9 @@ function printValidationInfo(validator) {
   const {validationStorage} = validator;
 
   console.info(
-      "============== VALIDATION INFO ===============\n"
+    '============== VALIDATION INFO ===============\n'
     + printValidationInfoHelper(validationStorage)
-    + "\n==============================================");
+    + '\n==============================================');
 }
 
 function printGroupInfoHelper(groupStroage) {
@@ -396,9 +396,9 @@ function printGroupInfo(validator) {
   const {groupStroage} = validator;
 
   console.info(
-      "================= GROUP INFO =================\n"
+    '================= GROUP INFO =================\n'
     + printGroupInfoHelper(groupStroage)
-    + "\n==============================================");
+    + '\n==============================================');
 }
 
 /**
@@ -408,12 +408,12 @@ function printGroupInfo(validator) {
 function printAllInfo(validator) {
   const {validationStorage, groupStroage} = validator;
   console.info(
-      "============== VALIDATION INFO ===============\n"
+    '============== VALIDATION INFO ===============\n'
     + printValidationInfoHelper(validationStorage)
-    + "\n==============================================\n"
-    + "================= GROUP INFO ==================\n"
+    + '\n==============================================\n'
+    + '================= GROUP INFO ==================\n'
     + printGroupInfoHelper(groupStroage)
-    + "\n==============================================");
+    + '\n==============================================');
 }
 
 /**

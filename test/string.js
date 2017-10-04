@@ -1,8 +1,7 @@
 import test from 'ava';
-import _ from 'lodash';
 import {lenBetween, lenGT, lenLT} from '../src/string';
 
-const name = "test.name";
+const name = 'test.name';
 const stringValue = 'test';
 const stringField = {name, value: stringValue};
 

@@ -9,7 +9,7 @@ export function isNum() {
   return ({value, name}) => {
     if (_.isNumber(value)) return;
     return `${name} must be a number.`;
-  }
+  };
 }
 
 /**
@@ -19,7 +19,7 @@ export function isNum() {
 export function isInteger() {
   return ({value, name}) => {
     if (_.isInteger(value)) return;
-    return `${name} must be an integer.`
+    return `${name} must be an integer.`;
   };
 }
 
@@ -30,8 +30,8 @@ export function isInteger() {
 export function isFinite() {
   return ({value, name}) => {
     if (_.isFinite(value)) return;
-    return `${name} must be a float.`
-  }
+    return `${name} must be a float.`;
+  };
 }
 
 /**
@@ -59,7 +59,7 @@ export function notGreaterThan(num) {
     checkNum(value);
     if (value <= num) return;
     return `${name} must not be greater than ${num}.`;
-  }
+  };
 }
 
 /**
@@ -73,7 +73,7 @@ export function lessThan(num) {
     checkNum(value);
     if (value < num) return;
     return `${name} must be less than ${num}.`;
-  }
+  };
 }
 
 /**
@@ -87,5 +87,5 @@ export function notLessThan(num) {
     checkNum(value);
     if (value >= num) return;
     return `${name} must not be less than ${num}.`;
-  }
+  };
 }

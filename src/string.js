@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {checkNum, checkString} from './common';
 
 /**
@@ -31,7 +30,7 @@ export function lenGT(val) {
     checkString(value);
     if (value.length > val) return;
     return `${name}'s length must be greater than ${val}`;
-  }
+  };
 }
 
 export function lenLT(val) {
@@ -44,5 +43,5 @@ export function lenLT(val) {
     checkString(value);
     if (value.length < val) return;
     return `${name}'s length must be less than ${val}`;
-  }
+  };
 }
