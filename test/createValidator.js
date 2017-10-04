@@ -312,3 +312,12 @@ test('show group info', t => {
 
   t.true(info.called)
 });
+
+test('show all info', t => {
+  const {validator, info} = t.context;
+  info.reset();
+  validator.register(field, validationChain);
+  validator.printAllInfo();
+
+  t.true(info.calledOnce);
+})

@@ -359,20 +359,33 @@ function deregister(validator, id, callback) {
   if (!_.isNil(callback)) callback()
 }
 
+function printValidationInfoHelper(validationStorage) {
+  const validationToPrint = [];
+  _.each(validationStorage, (value, id) => {
+    validationToPrint.push({...value, id});
+  });
+  return JSON.stringify(validationToPrint);
+}
+
 /**
  *
  * @param {Object} validator inner object
  */
 function printValidationInfo(validator) {
   const {validationStorage} = validator;
-  const validationToPrint = [];
-  _.each(validationStorage, (value, id) => {
-    validationToPrint.push({...value, id});
-  });
 
-  console.info("============== VALIDATION INFO ==============")
-  console.info(validationToPrint);
-  console.info("==============================================")
+  console.info(
+      "============== VALIDATION INFO ===============\n"
+    + printValidationInfoHelper(validationStorage)
+    + "\n==============================================");
+}
+
+function printGroupInfoHelper(groupStroage) {
+  const groupToPrint = {};
+  _.each(groupStroage, (idMap, groupName) => {
+    groupToPrint[groupName] = _.filter(_.keys(idMap), id => idMap[id]);
+  });
+  return JSON.stringify(groupToPrint);
 }
 
 /**
@@ -381,14 +394,26 @@ function printValidationInfo(validator) {
  */
 function printGroupInfo(validator) {
   const {groupStroage} = validator;
-  const groupToPrint = {};
-  _.each(groupStroage, (idMap, groupName) => {
-    groupToPrint[groupName] = _.filter(_.keys(idMap), id => idMap[id]);
-  });
 
-  console.info("================= GROUP INFO =================")
-  console.info(groupToPrint);
-  console.info("==============================================")
+  console.info(
+      "================= GROUP INFO =================\n"
+    + printGroupInfoHelper(groupStroage)
+    + "\n==============================================");
+}
+
+/**
+ * print all infos including validation info and group info.
+ * @param {Object} validator inner object
+ */
+function printAllInfo(validator) {
+  const {validationStorage, groupStroage} = validator;
+  console.info(
+      "============== VALIDATION INFO ===============\n"
+    + printValidationInfoHelper(validationStorage)
+    + "\n==============================================\n"
+    + "================= GROUP INFO ==================\n"
+    + printGroupInfoHelper(groupStroage)
+    + "\n==============================================");
 }
 
 /**
@@ -414,6 +439,7 @@ function createValidator() {
     deregister: deregister.bind(this, validator),
     printValidationInfo: printValidationInfo.bind(this, validator),
     printGroupInfo: printGroupInfo.bind(this, validator),
+    printAllInfo: printAllInfo.bind(this, validator)
   };
 
   return operation;

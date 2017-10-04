@@ -1,8 +1,13 @@
 {
-  "name": "validatorjs",
-  "version": "1.0.0",
+  "name": "@pinkyo/validatorjs",
+  "version": "0.0.2",
   "description": "central validator to provide an alternative solution.",
   "main": "lib/index.js",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "lib/"
+  ],
   "ava": {
     "files": [
       "test/*.js"
