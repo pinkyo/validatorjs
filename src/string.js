@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import {checkNum} from './common';
+import {checkNum, checkString} from './common';
 
 /**
- * check if a string's length is between low and high.
- * @param {Number} low
- * @param {Number} high
- */
+* check if a string's length is between low and high.
+* @param {Number} low
+* @param {Number} high
+*/
 export function lenBetween(low, high) {
   checkNum(low);
   checkNum(high);
@@ -14,7 +14,8 @@ export function lenBetween(low, high) {
   }
 
   return ({name, value}) => {
-    const length = _.length(value);
+    checkString(value);
+    const length = value.length;
     if (length >= low && length <= high) return;
     return `${name}'s length must between ${low} and ${high}`;
   };
@@ -27,7 +28,8 @@ export function lenGT(val) {
   }
 
   return ({name, value}) => {
-    if (_.length(value) > val) return;
+    checkString(value);
+    if (value.length > val) return;
     return `${name}'s length must be greater than ${val}`;
   }
 }
@@ -39,7 +41,8 @@ export function lenLT(val) {
   }
 
   return ({name, value}) => {
-    if (_.length(value) < val) return;
+    checkString(value);
+    if (value.length < val) return;
     return `${name}'s length must be less than ${val}`;
   }
 }
