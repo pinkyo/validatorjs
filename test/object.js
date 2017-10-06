@@ -2,7 +2,7 @@ import test from 'ava';
 import {
   equalTo,
   notEqualTo,
-} from '../src/object';
+} from '../src/tools/object';
 
 const name = 'test.name';
 const int = 5;

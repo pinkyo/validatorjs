@@ -1,5 +1,5 @@
 import test from 'ava';
-import {oneFalsy, allFalsy, oneTruthy, allTruthy} from '../src/util';
+import {oneFalsy, allFalsy, oneTruthy, allTruthy} from '../src/tools/util';
 
 const oneTruthyRes = ['test.name must greater than 3'];
 const allTruthyRes = {'test.id': oneTruthyRes};

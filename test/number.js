@@ -7,7 +7,7 @@ import {
   notGreaterThan,
   lessThan,
   notLessThan
-} from '../src/number';
+} from '../src/tools/number';
 
 const name = 'test.name';
 const int = 5;
