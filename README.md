@@ -48,7 +48,7 @@ function createValidator();
 function register(field, validationChain, callback);
 ~~~
 
-**validate groups, if not specified, default group**
+**validate groups, if not specified, default group.** ***defalt group contains all fields.***
 
 ~~~ javascript
 function validate(groups, callback);
@@ -134,6 +134,11 @@ validator.register(field, validationChain);
 validator.addGroup(id, invalidGroup);
 const result = validator.validate([invalidGroup]);
 ~~~
+
+### Tools
+
+we provide a tools diretory that contains some commomly used function to reduce workload. and it's alternative.
+[Tools](./TOOLS.md)
 
 ### LICENSE
 
