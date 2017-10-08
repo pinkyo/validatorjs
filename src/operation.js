@@ -76,6 +76,26 @@ function checkListener(listener) {
   }
 }
 
+function getIdsFromGroups(validator, groups) {
+  const {validationStorage, groupStroage} = validator;
+
+  let fieldIds = null;
+  if (_.isNil(groups)) {
+    fieldIds = _.keys(validationStorage);
+  } else {
+    const fieldIdSet = new Set();
+    _.each(groups, (element) => {
+      const group = groupStroage[element] || {};
+      for (const id in group)
+        if (group[id]) fieldIdSet.add(id);
+    });
+
+    fieldIds = _.toArray(fieldIdSet);
+  }
+
+  return fieldIds;
+}
+
 function warnWhenNotRegistered(id, validationStorage) {
   if (_.isNil(validationStorage[id])) {
     console.warn(`id(${id}) haven't be registered, check it before subscribe.`);
@@ -145,22 +165,8 @@ export function validate(validator, groups, callback) {
   checkGroups(groups);
   checkCallback(callback);
 
-  const {validationStorage, groupStroage} = validator;
-
   //fieldIds is ids to validate.
-  let fieldIds = null;
-  if (_.isNil(groups)) {
-    fieldIds = _.keys(validationStorage);
-  } else {
-    const fieldIdSet = new Set();
-    _.each(groups, (element) => {
-      const group = groupStroage[element] || {};
-      for (const id in group)
-        if (group[id]) fieldIdSet.add(id);
-    });
-
-    fieldIds = _.toArray(fieldIdSet);
-  }
+  const fieldIds = getIdsFromGroups(validator, groups);
 
   const result = {};
   _.each(fieldIds, (element) => {
@@ -360,14 +366,75 @@ export function deregister(validator, id, callback) {
   if (_.isNil(validation)) { return; }
 
   delete validationStorage[id];
-  resultCache[id] = null;
+  resultCache[id] = undefined;
   if (!_.isNil(callback)) callback();
 }
 
-export function printValidationInfoHelper(validationStorage) {
+/**
+ * get one latest result by id from result cache.
+ * @param {Object} validator inner object
+ * @param {String} id field id
+ */
+export function getOneResult(validator, id) {
+  checkId(id);
+
+  const {resultCache, validationStorage} = validator;
+  warnWhenNotRegistered(id, validationStorage);
+  return _.clone(resultCache[id]);
+}
+
+/**
+ * get results by groups. if groups field is not specified, all results will return.
+ * @param {Object} validator inner object
+ * @param {Array<String>} groups arrray of group name
+ */
+export function getResults(validator, groups) {
+  checkGroups(groups);
+
+  const fieldIds = getIdsFromGroups(validator, groups);
+  const result = {};
+  _.each(fieldIds, id => {
+    result[id] = getOneResult(validator, id);
+  });
+
+  return result;
+}
+
+/**
+ * clear result cache by id
+ * @param {Object} validator inner object
+ * @param {String} id field id
+ */
+export function clearOneResult(validator, id) {
+  checkId(id);
+
+  const {resultCache, validationStorage} = validator;
+  warnWhenNotRegistered(id, validationStorage);
+  resultCache[id] = undefined;
+}
+
+/**
+ * clear results in cache by groups.
+ * @param {Object} validator inner object
+ * @param {Array<String>} groups array of group name
+ */
+export function clearResults(validator, groups) {
+  checkGroups(groups);
+
+  const fieldIds = getIdsFromGroups(validator, groups);
+  _.each(fieldIds, id => {
+    clearOneResult(validator, id);
+  });
+}
+
+function printValidationInfoHelper(validationStorage) {
   const validationToPrint = [];
   _.each(validationStorage, (value, id) => {
-    validationToPrint.push({...value, id});
+    const {validationChain = []} = value;
+    validationToPrint.push({
+      ...value,
+      id,
+      validationChain: validationChain.length});
   });
   return JSON.stringify(validationToPrint);
 }
@@ -385,7 +452,7 @@ export function printValidationInfo(validator) {
     + '\n==============================================');
 }
 
-export function printGroupInfoHelper(groupStroage) {
+function printGroupInfoHelper(groupStroage) {
   const groupToPrint = {};
   _.each(groupStroage, (idMap, groupName) => {
     groupToPrint[groupName] = _.filter(_.keys(idMap), id => idMap[id]);

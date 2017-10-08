@@ -33,7 +33,7 @@ this module includs several simple concepts.
     ~~~
 
 - listener: function that will be invoked when validation is triggered.
-
+- resultCache: after validation, result will be saved to a cache for future's operataion, like access and clear.
 ### API
 
 **craate a validator**
@@ -88,6 +88,30 @@ function addGroup(id, group, callback);
 
 ~~~ javascript
 function removeGroup(id, group, callback);
+~~~
+
+**get one latest valiation result from result cache by id**
+
+~~~ javascript
+function getOneResult(id);
+~~~
+
+**get latest valiation results from result cache by groups**
+
+~~~ javascript
+function getResults(groups);
+~~~
+
+**clear result from result cache**
+
+~~~ javascript
+function clearOneResult(id);
+~~~
+
+**clear results from result cache by groups**
+
+~~~ javascript
+function clearResults(groups);
 ~~~
 
 **deregister a field**

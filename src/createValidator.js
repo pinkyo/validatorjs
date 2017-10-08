@@ -17,7 +17,7 @@ function createValidator() {
     resultCache
   };
 
-  return bindOperationsToValidator(operations, validator);
+  return bindOperationsToValidator.call(this, operations, validator);
 }
 
 export default createValidator;

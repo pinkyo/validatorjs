@@ -53,6 +53,27 @@ test('validate with group success.', t => {
   t.deepEqual(result[id], [tip]);
 });
 
+test('test get and clear one result from cache', t => {
+  const {validator} = t.context;
+  validator.register(field, validationChain);
+  validator.validate([group, invalidGroup]);
+  t.deepEqual(validator.getOneResult(id), [tip]);
+
+  validator.clearOneResult(id);
+  t.deepEqual(validator.getOneResult(id), undefined);
+});
+
+test('test get and clear results by groups from cache', t => {
+  const {validator} = t.context;
+  validator.register(field, validationChain);
+  validator.validate([group, invalidGroup]);
+  t.deepEqual(validator.getResults(groups)[id], [tip]);
+
+  validator.printAllInfo();
+  validator.clearResults(groups);
+  t.deepEqual(validator.getResults(groups)[id], undefined);
+});
+
 test('validate without group success.', t => {
   const {validator} = t.context;
   let callbackInvoked = false;
