@@ -17,12 +17,12 @@ $npm i @pinkyo/validatorjs -S
 ### Document
 
 this module includs several simple concepts.
-- field: field to validate, including id, name, groups, getter.
+- `field`: field to validate, including id, name, groups, getter.
     - `id`: field id. `required`.
     - `name`: field name for error message display. `optional`. if not specified, id will be used.
     - `groups`: groups that field is in, it is used when check more than one field. `optional`. we can validate a group of fields a time, and all fields will be added to default group when registered.
     - `getter`: function to get field value, without no parameter. `required`.
-- `validationChain`: an array of functions to validate the field value. `required`. The following is a validation example:
+- `validationChain`: an array of functions to validate the field value. The following is a validation example:
 
     ~~~ javascript
         ({name, value}) => {
@@ -37,7 +37,7 @@ this module includs several simple concepts.
 
 **craate a validator**
 
-A valiator is the begining of validatorjs usage, we operate on this object for the function we required.
+A validator is the begining of validatorjs usage, we operate on this object for the function we required.
 
 ~~~ javascript
 function createValidator();
@@ -164,6 +164,10 @@ const result = validator.validate([invalidGroup]);
 
 we provide a tools diretory that contains some commomly used function to reduce workload. and it's alternative.
 [Tools](./TOOLS.md)
+
+## Contribution
+
+report issue and pull request are welcomed. 
 
 ### LICENSE
 
