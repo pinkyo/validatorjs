@@ -8,7 +8,7 @@ files included now:
 - object.js: some common validation function.
 - util.js: some tool about validate result.
 
-explore them as you like.
+explore them as you like, and you can write your own tool function very easily.
 
 ## Example
 

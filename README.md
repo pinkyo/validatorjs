@@ -11,7 +11,6 @@ validatorjs gives you nearly total control when you validate form values, compar
 ### Usage
 
 ~~~ bash
-$npm i -g npm
 $npm i @pinkyo/validatorjs -S
 ~~~
 
@@ -19,11 +18,11 @@ $npm i @pinkyo/validatorjs -S
 
 this module includs several simple concepts.
 - field: field to validate, including id, name, groups, getter.
-    - id: field id. required.
-    - name: field name for display error message. optional. if not specified, id will be used.
-    - groups: groups that field is in, optional. we can validate a group a time, all field will be added to default group.
-    - getter: function to get value, no parameter. required.
-- validationChain: a list of function to validate the value, for example:
+    - `id`: field id. `required`.
+    - `name`: field name for error message display. `optional`. if not specified, id will be used.
+    - `groups`: groups that field is in, it is used when check more than one field. `optional`. we can validate a group of fields a time, and all fields will be added to default group when registered.
+    - `getter`: function to get field value, without no parameter. `required`.
+- `validationChain`: an array of functions to validate the field value. `required`. The following is a validation example:
 
     ~~~ javascript
         ({name, value}) => {
@@ -32,11 +31,13 @@ this module includs several simple concepts.
         }
     ~~~
 
-- listener: function that will be invoked when validation is triggered.
-- resultCache: after validation, result will be saved to a cache for future's operataion, like access and clear.
+- `listener`: function that will be invoked when validation is triggered.
+- `resultCache`: after validation, result will be saved to a cache for future's operataion, like access.
 ### API
 
 **craate a validator**
+
+A valiator is the begining of validatorjs usage, we operate on this object for the function we required.
 
 ~~~ javascript
 function createValidator();
