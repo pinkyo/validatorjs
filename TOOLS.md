@@ -1,16 +1,15 @@
-## Tools
+## TOOLS
 
-tools is a directory that is not exported in index. there are some functions that may use commonly when work with **@pinkyo/validatorjs**.
+Tools is a directory that is not exported in index. There are some functions that may use commonly when work with **@pinkyo/validatorjs**. Files included now:
 
-files included now:
-- string.js: some validation function about string.
-- number.js: some validation function about number.
-- object.js: some common validation function.
-- util.js: some tool about validate result.
+- `string.js`: some validation function about `string`.
+- `number.js`: some validation function about `number`.
+- `object.js`: some common validation function.
+- `util.js`: some tool to check validate result(s).
 
-explore them as you like, and you can write your own tool function very easily.
+Explore them as you like, and you can write your own tool function very easily.
 
-## Example
+### Example
 
 ~~~ javascript
 import test from 'ava';

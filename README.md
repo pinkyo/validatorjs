@@ -35,15 +35,15 @@ this module includs several simple concepts.
 - `resultCache`: after validation, result will be saved to a cache for future's operataion, like access.
 ### API
 
-**craate a validator**
+**create a validator**
 
-A validator is the begining of validatorjs usage, we operate on this object for the function we required.
+A validator is the beginning of validatorjs usage, we operate on this object for the function we required.
 
 ~~~ javascript
 function createValidator();
 ~~~
 
-**reigster a field to validator**
+**register a field to validator**
 
 ~~~ javascript
 function register(field, validationChain, callback);
@@ -165,7 +165,7 @@ const result = validator.validate([invalidGroup]);
 we provide a tools diretory that contains some commomly used function to reduce workload. and it's alternative.
 [Tools](./TOOLS.md)
 
-## Contribution
+### Contribution
 
 report issue and pull request are welcomed. 
 
